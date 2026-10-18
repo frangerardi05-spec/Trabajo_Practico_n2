@@ -1,2 +1,2 @@
 # Trabajo_Practico_n2
-Entrega del segundo trabajo práctico para Programación I
+UTN - Programación I - Trabajo Práctico N°1 - Francisco Gerardi
