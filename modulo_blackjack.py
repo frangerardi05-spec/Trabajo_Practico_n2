@@ -7,12 +7,14 @@ from modulo_tragamonedas import validar_apuesta_min_max
 from modulo_tragamonedas import preguntar_seguir_jugando
 
 # Función principal para el Black Jack
-def iniciar_blackjack(saldo:int, apuesta:int)->None:
+def iniciar_blackjack(saldo:int, apuesta:int)->int:
     """
     Función que inicia el juego de Black Jack.
 
-    Recibe el parámetro:
-        saldo (int)
+    Recibe los parámetros:
+        saldo (int)       |    apuesta (int)
+
+    Retorna el saldo modificado por la partida.
     """
     # Declaro las variables
     total_mano_banca = 0
