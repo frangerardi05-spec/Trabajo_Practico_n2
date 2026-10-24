@@ -4,9 +4,10 @@
 import random
 import modulo_tragamonedas
 from modulo_tragamonedas import validar_apuesta_min_max
+from modulo_tragamonedas import preguntar_seguir_jugando
 
 # Función principal para el Black Jack
-def iniciar_blackjack(saldo:int)->None:
+def iniciar_blackjack(saldo:int, apuesta:int)->None:
     """
     Función que inicia el juego de Black Jack.
 
@@ -14,132 +15,143 @@ def iniciar_blackjack(saldo:int)->None:
         saldo (int)
     """
     # Declaro las variables
-    victoria_bj = None
     total_mano_banca = 0
     total_mano_jugador = 0
+    continua_juego = True
 
     # Declaro las listas
-    mazo_cartas_figuras_comodin = ["J", "Q", "K", "A"]
-    mazo_cartas_numericos = [2, 3, 4, 5, 6, 7, 8, 9, 10]
+    mazo_cartas_figuras_comodin = ["J", "Q", "K", "A"] * 4
+    mazo_cartas_numericos = [2, 3, 4, 5, 6, 7, 8, 9, 10] * 4
     mazo_cartas_completo = mazo_cartas_figuras_comodin + mazo_cartas_numericos
-    mano_banca = []
-    mano_jugador = []
 
     # Muestra el menú del Black Jack
     print("#----------------------------------------#\n")
     print("     ¡¡Bienvenido al Black Jack!!")
     print("\n#----------------------------------------#")
-    print(f"Su Puntaje inicial es de {saldo}.\n")
-    print(f"Apuesta personalizada:\n -> Apuesta Mínima = 1\n -> Apuesta Máxima = {saldo}")
-    print("\nApuesta por defecto = 10\n -> [Seleccionar '0']")
-    print("\n#----------------------------------------#")
+    print(f"Su Saldo es de {saldo}$.")
+    print(f"Su Apuesta Actual es de {apuesta}$.")
+    print("#----------------------------------------#")
+
+    opcion_continuar = input("Presionar el botón {Enter} para empezar a jugar: ")
+
+    limpiar_teclado_os()
 
     while True:
+        # Vacío las manos para las partidas nuevas posteriores a haber jugado al menos una vez.
+        mano_banca = []
+        mano_jugador = []
+
         # Validación de apuesta
-        apuesta = int(input("Ingrese total a apostar: "))
-        if apuesta == 0:
-            apuesta = 10
-        limpiar_teclado_os()
-        validar_apuesta_min_max(apuesta, saldo)
+        apuesta = validar_apuesta_min_max(apuesta, saldo)
 
         print(f"Tu apuesta es de {apuesta}.")
-        print("\nReparto las cartas...\n")
-        mano_jugador = repartir_cartas_jugador(mazo_cartas_completo, mano_jugador)
-        mano_banca = repartir_cartas_banca(mazo_cartas_completo, mano_banca)
-        mano_jugador = repartir_cartas_jugador(mazo_cartas_completo, mano_jugador)
-        mano_banca = repartir_cartas_banca(mazo_cartas_completo, mano_banca)
+        print("#----------------------------------------#\n")
+        print("Reparto las cartas...\n")
+
+        mano_jugador = repartir_cartas(mazo_cartas_completo, mano_jugador)
+        mano_jugador = repartir_cartas(mazo_cartas_completo, mano_jugador)
+        mano_banca = repartir_cartas(mazo_cartas_completo, mano_banca)
+        mano_banca = repartir_cartas(mazo_cartas_completo, mano_banca)
 
         total_mano_banca = definir_valores_mano(mano_banca)
         total_mano_jugador = definir_valores_mano(mano_jugador)
-        
+
         mostrar_jugador_interfaz_BlackJack(mano_jugador) 
-        mostrar_banca_interfaz_BlackJack(mano_banca)
+        mostrar_banca_interfaz_BlackJack(mano_banca, False)
 
         while True:
-            print("\n#----------------------------------------#")
-            print("Viendo tus cartas. Elegí...\n")
-            print("[1] Seguis jugando.")
-            print("[0] Te plantas.")
-            eleccion = int(input("\nQue elegís: "))
+            continua_juego = preguntar_seguir_jugando(continua_juego, True)
 
-            limpiar_teclado_os()
-            print("#----------------------------------------#")
-
-        # Dos condicionales por si el jugador sigue jugando o se planta
-            if eleccion == 1:
-                print("Sigo Jugando...\n")
-                mano_jugador = repartir_cartas_banca(mazo_cartas_completo, mano_jugador)
+            # Dos condicionales por si el jugador sigue jugando o se planta
+            if continua_juego == True:
+                limpiar_teclado_os()
+                mano_jugador = repartir_cartas(mazo_cartas_completo, mano_jugador)
                 total_mano_jugador = definir_valores_mano(mano_jugador)
                 mostrar_jugador_interfaz_BlackJack(mano_jugador)
-                mostrar_banca_interfaz_BlackJack(mano_banca)
-                if total_mano_jugador >= 21:
-                    victoria_bj = False
-                continue
+                mostrar_banca_interfaz_BlackJack(mano_banca, False)
+                if total_mano_jugador > 21: 
+                    continua_juego == False
+                    limpiar_teclado_os()
+                    print("Me pasé de 21...")
+                else:
+                    continue
 
-            elif eleccion == 0:
-                while total_mano_banca < 17:
-                    print("Me planto.")
-                    mano_banca = repartir_cartas_banca(mazo_cartas_completo, mano_banca)
-                    total_mano_banca = definir_valores_mano(mano_banca)
-                    mostrar_jugador_interfaz_BlackJack(mano_jugador)
-                    mostrar_banca_interfaz_BlackJack(mano_banca)
-                    break
+            elif continua_juego == False:
+                while True:
+                    limpiar_teclado_os()
+                    if total_mano_banca < 17:
+                        mano_banca = repartir_cartas(mazo_cartas_completo, mano_banca)
+                        mostrar_jugador_interfaz_BlackJack(mano_jugador)
+                        mostrar_banca_interfaz_BlackJack(mano_banca)
+                        total_mano_banca = definir_valores_mano(mano_banca)
+                    elif total_mano_banca >= 17:
+                        break
 
-            # En caso de calcular resultados
-            limpiar_teclado_os()
             mostrar_jugador_interfaz_BlackJack(mano_jugador)
             mostrar_banca_interfaz_BlackJack(mano_banca)
+
             # Condicional en caso de victoria
-            if (((total_mano_jugador <= 21) and (total_mano_banca < total_mano_jugador)) or
-                ((total_mano_jugador <= 21) and (total_mano_banca > 21))):
-                print(f"Gana el Jugador. Ganaste {apuesta * 2}.")
-                apuesta = apuesta * 2
-                saldo += apuesta
-                victoria_bj = True
+            if (((total_mano_jugador <= 21) and 
+                (total_mano_banca < total_mano_jugador) or
+                (total_mano_banca > 21)) or 
+                 ((total_mano_jugador > 21) and
+                 (total_mano_banca > 21))):
+                print("\n#----------------------------------------#")
+                print(f"Gana el Jugador. Ganaste {apuesta * 2}$.")
+                saldo = saldo + (apuesta * 2)
                 break
+
             # Condicional en caso de derrota
-            elif (((total_mano_jugador > 21) and (total_mano_banca <= 21)) or
-                    (total_mano_banca == total_mano_jugador)):
-                print(f"Gana la Banca. Perdiste {apuesta}.")
+            elif (((total_mano_banca > total_mano_jugador) and 
+                  (total_mano_banca <= 21)) or
+                  ((total_mano_jugador > 21) and 
+                   (total_mano_banca <= 21))):
+                print("\n#----------------------------------------#")
+                print(f"Gana la Banca. Perdiste {apuesta}$.")
                 saldo = saldo - apuesta
-                victoria_bj = False
                 break
+
             # Condicional en caso de empate
-            else:
-                print("Ambos perdieron. Empate. ","Push")
-                victoria_bj = None
+            elif total_mano_jugador == total_mano_banca:
+                print("\n#----------------------------------------#")
+                print("Empate.\nPush.")
                 saldo = saldo
                 break
 
         # Condicional para cerrar el programa por si el saldo llega a 0
         if saldo == 0:
-            print("\nTu saldo = 0... Fin del juego.")
+            print("\nTu saldo es de 0... Fin del juego.")
             print("#----------------------------------------#")
             break
 
         print("#----------------------------------------#")
-        print(f"Tu saldo actual es de {saldo}.\n")
-        print("[1] Seguir jugando al Black Jack\n[0] Volver al menú principal\n")
-        eleccion = input("¿Desea seguir jugando?: ")
-        if eleccion == "1":
-            continue
-        elif eleccion == "0":
+        print(f"Tu saldo actual es de {saldo}$.")
+        print("#----------------------------------------#")
+
+        continua_juego = preguntar_seguir_jugando(continua_juego)
+        if continua_juego == False:
             break
-        else:
-            limpiar_teclado_os()
-            while eleccion != 1 and eleccion != 0:
-                print("Por favor, seleccionar una opción válida.\n")
-                print(f"Tu saldo actual es de {saldo}.\n")
-                print("[1] Seguir jugando al Black Jack\n[0] Volver al menú principal\n")
-                eleccion = input("¿Desea seguir jugando?: ")
+
         limpiar_teclado_os()
+
+        print("#----------------------------------------#")
+        print(f"-> Tu Apuesta es de {apuesta}$.\n")
+        print(f"-> Tu Saldo Actual es de {saldo}$.")
+        print("#----------------------------------------#")
+
     return saldo
-    # Termina el programa.
+
+
 #-------------------------------------------------------#
 # Función para calcular el valor del As
 def definir_valores_mano(mano:list, total_mano:int = 0)->int:
     """
-    Función para asignarle un valor al "As
+    Función para asignarle un valor a las cartas de la mano del jugador y de la banca.
+
+    Recibe como parámetros: 
+        mano (list)    |   total_mano (int)
+
+    Retorna el total de la mano sumada.
     """
     lista_Ases = []
     lista_Figuras = []
@@ -155,15 +167,12 @@ def definir_valores_mano(mano:list, total_mano:int = 0)->int:
             lista_Figuras += carta
         else:
             total_mano += carta
-            continue
 
     for As in lista_Ases:
-        if total_mano <= 10:
-            As = 11
-            total_mano += As
-        elif total_mano > 10:
+        As = 11
+        if total_mano > 10 and len(mano) >= 3:
             As = 1
-            total_mano += As
+        total_mano += As
 
     for Figuras in lista_Figuras:
         Figuras = 10
@@ -172,48 +181,42 @@ def definir_valores_mano(mano:list, total_mano:int = 0)->int:
     return total_mano
 
 # Función para repartir las primeras dos cartas a la banca
-def repartir_cartas_banca(mazo_cartas_completo:list, mano_banca:list)->list:
+def repartir_cartas(mazo_cartas_completo:list, mano:list)->list:
     """
-    Función para repartir las primeras dos cartas al jugador.
+    Función para repartir las cartas al jugador o a la banca.
 
     Recibe dos parámetros:
-        mazo_cartas_completo (list)     |     mano_banca (list)
+        mazo_cartas_completo (list)     |     mano (list)
     
-    Retorna la mano_banca
+    Retorna la mano con las cartas aleatoriamente dadas del mazo de cartas completo
     """
-    carta_banca = mazo_cartas_completo [random.randint(0, len(mazo_cartas_completo)- 1)]
-    mano_banca += [carta_banca]
+    carta = mazo_cartas_completo [random.randint(0, len(mazo_cartas_completo)- 1)]
+    mano += [carta]
 
-    return mano_banca
-
-# Función para repartir las primeras dos cartas al jugador
-def repartir_cartas_jugador(mazo_cartas_completo:list, mano_jugador:list)->list:
-    """
-    Función para repartir las primeras dos cartas al jugador.
-
-    Recibe dos parámetros:
-        mazo_cartas_completo (list)     |     mano_jugador (list)
-    
-    Retorna la mano_jugador
-    """
-    carta_jugador = mazo_cartas_completo [random.randint(0, len(mazo_cartas_completo)- 1)]
-    mano_jugador += [carta_jugador]
-    return mano_jugador
+    return mano
 
 # Función para mostrar las cartas de la banca
-def mostrar_banca_interfaz_BlackJack(m_b:list)->None:
+def mostrar_banca_interfaz_BlackJack(m_b:list, muestro_carta:bool = True)->None:
     """
-    Función que sirve para mostrar la interfaz de las rondas de la banca.
+    Función que sirve para mostrar la interfaz de la mano de la banca. Tiene un parámetro opcional, que define si la banca muestra o no su primera carta (True = Si | False = No)
 
-    Los parámetros que utilizare serán: m_b (list) | m_j (list)
+    Los parámetros que a utilizar son: 
+        m_b (list)     |    muestro_carta (bool)
     """
     cantidad_cartas_mazo = len(m_b)
     contador = 0     
 
     print("--------Banca--------")
-    while contador < cantidad_cartas_mazo:
+    while contador < cantidad_cartas_mazo and muestro_carta == True:
         if contador + 1 < cantidad_cartas_mazo:
             print(f"     {m_b[contador]}        {m_b[contador + 1]} ")
+        
+        else:
+            print(f"          {m_b[contador]}       ")
+        contador += 2
+    while contador < cantidad_cartas_mazo and muestro_carta == False:
+        if contador + 1 < cantidad_cartas_mazo:
+            print(f"     {"?"}        {m_b[contador + 1]} ")
         
         else:
             print(f"          {m_b[contador]}       ")
