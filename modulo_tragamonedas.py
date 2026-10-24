@@ -4,7 +4,7 @@
 import random
 
 #--------------------------------------------------------#
-def iniciar_tragamonedas_virtual(saldo:int, apuesta:int = 10)->int:
+def iniciar_tragamonedas_virtual(saldo:int, apuesta:int)->int:
     """
     Objetivo: Función que contiene el juego de "tragamonedas virtual".
 
@@ -18,7 +18,7 @@ def iniciar_tragamonedas_virtual(saldo:int, apuesta:int = 10)->int:
     apuesta_min = 1
 
     # Utilizaré esta variable para el bucle while
-    cont_juego = 1
+    continua_juego = True
 
     # Declaro las listas que utilizaré:
     result = []
@@ -38,22 +38,16 @@ def iniciar_tragamonedas_virtual(saldo:int, apuesta:int = 10)->int:
     
     # Interfaz y código del Tragamonedas:
     print("#----------------------------------------#\n")
-    print(" Bienvenido al tragamonedas virtual")
+    print(" ¡¡Bienvenido al Tragamonedas Virtual!!")
     print("\n#----------------------------------------#")
-    print(f"""Su saldo inicial es de {saldo}
-
-Apuesta personalizada: 
-    -> Apuesta Mínima = 1 
-    -> Apuesta Máxima = {saldo}
-
-Apuesta por defecto = 10 
-    -> [Seleccionar '0']""")
+    print(f"Su Saldo es de {saldo}$.")
+    print(f"Su Apuesta Actual es de {apuesta}$.")
     print("#----------------------------------------#")
-    apuesta = int(input("Ingrese total a apostar: "))
 
-    print("\n#----------------------------------------#\n")
+    opcion_continuar = input("Presionar el botón {Enter} para empezar a jugar: ")
+    print("#----------------------------------------#")
     limpiar_teclado_os()
-    while cont_juego == 1:
+    while continua_juego == True:
 
     # Función para cuando la apuesta es menor a la puesta mínima o cuando la apuesta es mayor a tu saldo
         apuesta = validar_apuesta_min_max(apuesta, saldo)
@@ -62,8 +56,9 @@ Apuesta por defecto = 10
         p_c_p = list_char [random.randint(0, len(list_char)- 1)]
         s_c_p = list_char [random.randint(0, len(list_char)- 1)]
         t_c_p = list_char [random.randint(0, len(list_char)- 1)]
-        
-        print("|",p_c_p,"|",s_c_p,"|",t_c_p,"|")
+
+        print("#----------------------------------------#")
+        print("|",p_c_p,"|",s_c_p,"|",t_c_p,"|","\n")
 
         result += [p_c_p]
         result += [s_c_p]
@@ -72,31 +67,22 @@ Apuesta por defecto = 10
         saldo = calcular_coincidencias(result, saldo, apuesta)
         result = []
 
-        print("\n#----------------------------------------#")
-        print("\nTu saldo es:", saldo)
+        print("#----------------------------------------#")
+        print(f"-> Tu Apuesta es de {apuesta}$.\n")
+        print(f"-> Tu Saldo Actual es de {saldo}$.")
+        print("#----------------------------------------#")
 
     # Condicional para cerrar el programa por si el saldo llega a 0
         if saldo == 0:
-            print("\nTu saldo es 0... Fin del juego.")
+            print("\nTu Saldo es 0... Fin del juego.")
             print("\n#----------------------------------------#")
             break
 
-    # Utilizo la variable cont_juego para consultar si se sigue jugando o no:
-        print("Seguir jugando...\n\n[1] Si\n[0] No\n")
-        cont_juego = preguntar_seguir_jugando(cont_juego)
-        if cont_juego == 0:
-            limpiar_teclado_os()
+    # Utilizo la variable continua_juego para consultar si se sigue jugando o no:
+        continua_juego = preguntar_seguir_jugando(continua_juego)
+        if continua_juego == False:
             break
-    # Si el saldo > 0, se sigue el código con normalidad:
-        limpiar_teclado_os()
-        print("#----------------------------------------#")
-        print("\nTu saldo es: ", saldo)
-        print(f"Apuesta personalizada:\n -> Apuesta Mínima = 1\n -> Apuesta Máxima = {saldo}")
-        print("\nApuesta por defecto = 10\n -> [Seleccionar '0']")
-        print("\n#----------------------------------------#")
 
-        apuesta = int(input("Ingrese total a apostar: "))
-        print("\n#----------------------------------------#")
         limpiar_teclado_os()
     return saldo
 
@@ -116,28 +102,30 @@ def calcular_coincidencias(result:list, saldo:int, apuesta:int)->int:
         match result[0]:
             case "7":
                 saldo = saldo + apuesta * 10
-                print("\n¡¡Triple 7!! Saldo actual:", saldo)
+                print(f"¡¡Triple 7!! Saldo actual: +{apuesta*10}$")
             case "0":
+                print("Perdiste todo.")
+                print(f"Saldo anterior: {saldo}")
                 saldo = apuesta * 0
-                print("\nPerdiste todo. Saldo actual:", saldo)
+                print(f"Saldo actual: {apuesta*0}$")
             case _:
                 saldo = saldo + apuesta * 5
-                print("\n¡¡Triple Coincidencia!! Saldo actual:", saldo)
+                print(f"¡¡¡Triple Coincidencia!!! Saldo actual: +{apuesta*5}$")
 
     #Para las 2/3 coincidencias:
     elif result[0] == result[1] or result[0] == result[2] or result[1] == result[2]:
         saldo = saldo + apuesta * 2
-        print("\n¡¡Doble Coincidencia!! Saldo actual:", saldo)
+        print(f"¡¡Doble Coincidencia!! Saldo actual: +{apuesta*2}$")
 
     #Para cuando no hay ninguna coincidencia:
     elif result[0] != result[1] and result[0] != result[2] and result[1] != result[2]:
         saldo = saldo - apuesta * 1
-        print("\nNada... Saldo actual:", saldo)
+        print("Nada...")
 
     return saldo
 
 #--------------------------------------------------------#
-def validar_apuesta_min_max(apuesta:int, saldo:int,apuesta_min:int = 0)->int:
+def validar_apuesta_min_max(apuesta:int, saldo:int,apuesta_min:int = 1)->int:
     """
     Función para cuando la apuesta es menor a la puesta mínima o cuando la apuesta es mayor a tu saldo se produzca un bucle while()
     hasta que se ingrese una apuesta válida.
@@ -148,44 +136,72 @@ def validar_apuesta_min_max(apuesta:int, saldo:int,apuesta_min:int = 0)->int:
     Retorna la apuesta
     """
     while apuesta < apuesta_min or apuesta > saldo:
+        print("#----------------------------------------#")
         if apuesta < apuesta_min:
             print("La apuesta mínima es de: 1\n")
             print("Tu saldo es:", saldo)
             apuesta = int(input("\nIngrese nuevamente un total a apostar: "))
             print("\n#----------------------------------------#")
-            limpiar_teclado_os()
         elif apuesta > saldo:
             print("La apuesta máxima no puede ser mayor a tu saldo.\n")
             print("Tu saldo es:", saldo)
             apuesta = int(input("\nIngrese nuevamente un total a apostar: "))
             print("\n#----------------------------------------#")
-            limpiar_teclado_os()
         else:
             break
+    limpiar_teclado_os()
     return apuesta
 
 #--------------------------------------------------------#
-def preguntar_seguir_jugando(cont_juego:str)->str:
-    """"""
+def preguntar_seguir_jugando(continua_juego:bool, pregunta_partida:bool = False)->bool:
+    """
+    Función que tiene como objetivo el preguntar si se sigue jugando, si se vuelve al menú principal; o si te plantas o seguis jugando.
+
+    Recibe dos parámetros, uno de ellos opcional:
+        continua_juego (bool)      |    pregunta_partida (bool) = False
+
+    Retorna como un booleano el si continuar el juego o no.
+    """
     # Utilizo la variable cont_juego para consultar si se sigue jugando o no:
-    cont_juego = int(input("------>: "))
-    print("\n#----------------------------------------#")
+    if pregunta_partida == False:
+        print("\n> Presionar {Enter} para continuar jugando")
+        eleccion = input("  o ingresar 'S' para volver al menú principal: ")
 
-    match cont_juego:
-        case 0:
-            print("\nFin del Juego.")
-            print("\n#----------------------------------------#")
+        match eleccion:
+            case "s":
+                continua_juego = False
+                limpiar_teclado_os()
+                print("Volviendo al menú principal...")
 
-        case 1:
-            cont_juego = 1
+            case "S":
+                continua_juego = False
+                limpiar_teclado_os()
+                print("Volviendo al menú principal...")
 
-        case _:
-            while cont_juego != 0 and cont_juego != 1:
-                print("Seleccionar las opciones válidas")
-                print("Seguir jugando...\n[1] Si\n[0] No")
-                cont_juego = input("------>: ")
+            case _:
+                continua_juego = True
 
-    return cont_juego
+    elif pregunta_partida == True:
+        print("\n#----------------------------------------#")
+        print("Viendo tus opciones. Elegí...")
+        print("\n> Seguís jugando (Presionar {Enter})")
+        eleccion = input("  o te plantas (Ingresar 'P'): ")
+        print("\n#----------------------------------------#")
+
+        match eleccion:
+            case "p":
+                continua_juego = False
+                print("Me planto.")
+
+            case "P":
+                continua_juego = False
+                print("Me planto")
+
+            case _:
+                continua_juego = True
+                print("Sigo jugando. Dame otra carta.")
+
+    return continua_juego
 
 #--------------------------------------------------------#
 def limpiar_teclado_os()->None:
