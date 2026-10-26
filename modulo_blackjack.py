@@ -11,10 +11,10 @@ def iniciar_blackjack(saldo:int, apuesta:int)->int:
     """
     Función que inicia el juego de Black Jack.
 
-    Recibe los parámetros:
-        saldo (int)       |    apuesta (int)
-
-    Retorna el saldo modificado por la partida.
+    Recibe el parámetro:
+        saldo (int)     |     apuesta(int)
+    
+    Retorna el saldo modificado
     """
     # Declaro las variables
     total_mano_banca = 0
@@ -22,6 +22,7 @@ def iniciar_blackjack(saldo:int, apuesta:int)->int:
     continua_juego = True
 
     # Declaro las listas
+    mazo_cartas_completo = []
     mazo_cartas_figuras_comodin = ["J", "Q", "K", "A"] * 4
     mazo_cartas_numericos = [2, 3, 4, 5, 6, 7, 8, 9, 10] * 4
     mazo_cartas_completo = mazo_cartas_figuras_comodin + mazo_cartas_numericos
@@ -143,7 +144,6 @@ def iniciar_blackjack(saldo:int, apuesta:int)->int:
 
     return saldo
 
-
 #-------------------------------------------------------#
 # Función para calcular el valor del As
 def definir_valores_mano(mano:list, total_mano:int = 0)->int:
@@ -170,32 +170,55 @@ def definir_valores_mano(mano:list, total_mano:int = 0)->int:
         else:
             total_mano += carta
 
-    for As in lista_Ases:
-        As = 11
-        if total_mano > 10 and len(mano) >= 3:
-            As = 1
-        total_mano += As
-
     for Figuras in lista_Figuras:
         Figuras = 10
         total_mano += Figuras
+
+    for As in lista_Ases:
+        As = 1
+        if total_mano <= 10:
+            As = 11
+        total_mano += As
 
     return total_mano
 
 # Función para repartir las primeras dos cartas a la banca
 def repartir_cartas(mazo_cartas_completo:list, mano:list)->list:
     """
-    Función para repartir las cartas al jugador o a la banca.
+    Función para repartir las cartas al jugador o a la banca, y rebaraja el mazo.
 
     Recibe dos parámetros:
         mazo_cartas_completo (list)     |     mano (list)
     
-    Retorna la mano con las cartas aleatoriamente dadas del mazo de cartas completo
+    Retorna la mano con las cartas aleatoriamente dadas del mazo de cartas completo.
     """
+
     carta = mazo_cartas_completo [random.randint(0, len(mazo_cartas_completo)- 1)]
+
+    mazo_cartas_completo = barajar_mazo_cartas(mazo_cartas_completo)
+
+    mazo_cartas_completo = mazo_cartas_completo - [carta]
     mano += [carta]
 
     return mano
+
+# Función que baraja de vuelta el mazo de cartas completo cuando no quedan mas cartas
+def barajar_mazo_cartas(mazo_cartas_completo:list)->list:
+    """
+    Función que rebaraja el mazo de cartas completo cuando se queda sin cartas.
+
+    Recibe de parámetro:
+        mazo_cartas_completo (list)
+
+    Retorna el mazo de cartas completo rebarajado.
+    """
+    mazo_cartas_figuras_comodin = ["J", "Q", "K", "A"] * 4
+    mazo_cartas_numericos = [2, 3, 4, 5, 6, 7, 8, 9, 10] * 4
+
+    if len(mazo_cartas_completo) == 0:
+        mazo_cartas_completo = mazo_cartas_numericos + mazo_cartas_figuras_comodin
+
+    return mazo_cartas_completo
 
 # Función para mostrar las cartas de la banca
 def mostrar_banca_interfaz_BlackJack(m_b:list, muestro_carta:bool = True)->None:
