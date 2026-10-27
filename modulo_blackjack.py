@@ -268,6 +268,16 @@ def mostrar_jugador_interfaz_BlackJack(m_j:list)->None:
         contador += 2
     print("---------------------")
 
+# Función para marcar las cartas que ya salieron del mazo
+def marcar_carta_utilizada(mazo_cartas_completo:list)->None:
+    """
+    Función que tiene como objetivo el marcar las cartas utilizadas de la baraja completa.
+    
+    Recibe como parámetro:
+        mazo_cartas_completo (list)
+    """
+    contador = 0
+
 # Función para limpiar el teclado de la terminal:
 def limpiar_teclado_os()->None:
     """
@@ -279,3 +289,4 @@ def limpiar_teclado_os()->None:
         os.system("cls")
     else:
         os.system("clear")
+
