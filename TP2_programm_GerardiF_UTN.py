@@ -1,13 +1,11 @@
 #---------------------------- Trabajo Práctico 2 de Francisco Gerardi ----------------------------#
-# TP n°2: 2da entrega
+# TP n°2: 3ra entrega
 
-# Buenas Profe Fausto, ya hice las correcciones que me mandaste en la primer entrega, espero que ahora esté todo bien. 
+# Buenas, profe ya hice las correcciones que me mandaste en la primer entrega y segunda entrega.
 # Saludos, muchas gracias, y que tenga un buen día, tarde o noche.
 
-# Importo el módulo con las funciones a utilizar:
-import modulo_tragamonedas
-import modulo_blackjack
 
+# Importo el módulo con las funciones a utilizar:
 from modulo_tragamonedas import iniciar_tragamonedas_virtual
 from modulo_tragamonedas import validar_apuesta_min_max
 from modulo_blackjack import iniciar_blackjack
@@ -22,7 +20,7 @@ apuesta = 10
 # Interfaz y operaciones del juego:
 
 # Bucle while que encierra a todas las funciones para que se repitan hasta salir del programa:
-while True and saldo > 0:
+while saldo > 0:
     
 #-----------------------------------------------------#
 # Interfaz del menú principal:
@@ -69,7 +67,7 @@ while True and saldo > 0:
           print("\n#----------------------------------------#")
           break
 
-# En caso de que el usuario coloque otro valor distinto a 1, 2, 3 o 4:
+# En caso de que el usuario coloque otro valor distinto a 1, 2 o 3:
       case _:
               limpiar_teclado_os()
               print("#----------------------------------------#")
