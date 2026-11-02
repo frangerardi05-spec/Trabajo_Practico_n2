@@ -12,11 +12,6 @@ def iniciar_tragamonedas_virtual(saldo:int, apuesta:int)->int:
 
     Retorno: El juego de tragamonedas hasta que el usuario no quiera jugar más o pierda todos los puntos.
     """
-
-    # Declaro las variables a utilizar:
-    apuesta_defecto = 10
-    apuesta_min = 1
-
     # Utilizaré esta variable para el bucle while
     continua_juego = True
 
@@ -44,7 +39,7 @@ def iniciar_tragamonedas_virtual(saldo:int, apuesta:int)->int:
     print(f"Su Apuesta Actual es de {apuesta}$.")
     print("#----------------------------------------#")
 
-    opcion_continuar = input("Presionar el botón {Enter} para empezar a jugar: ")
+    input("Presionar el botón {Enter} para empezar a jugar: ")
     print("#----------------------------------------#")
     limpiar_teclado_os()
     while continua_juego == True:
