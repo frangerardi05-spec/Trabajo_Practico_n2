@@ -2,7 +2,6 @@
 
 # Módulos que importo
 import random
-import modulo_tragamonedas
 from modulo_tragamonedas import validar_apuesta_min_max
 from modulo_tragamonedas import preguntar_seguir_jugando
 
@@ -21,11 +20,8 @@ def iniciar_blackjack(saldo:int, apuesta:int)->int:
     total_mano_jugador = 0
     continua_juego = True
 
-    # Declaro las listas
-    mazo_cartas_completo = []
-    mazo_cartas_figuras_comodin = ["J", "Q", "K", "A"] * 4
-    mazo_cartas_numericos = [2, 3, 4, 5, 6, 7, 8, 9, 10] * 4
-    mazo_cartas_completo = mazo_cartas_figuras_comodin + mazo_cartas_numericos
+    # Creo el mazo de cartas completo
+    mazo_cartas_completo = crear_mazo_cartas()
 
     # Muestra el menú del Black Jack
     print("#----------------------------------------#\n")
@@ -35,10 +31,10 @@ def iniciar_blackjack(saldo:int, apuesta:int)->int:
     print(f"Su Apuesta Actual es de {apuesta}$.")
     print("#----------------------------------------#")
 
-    opcion_continuar = input("Presionar el botón {Enter} para empezar a jugar: ")
+    input("Presionar el botón {Enter} para empezar a jugar: ")
 
     limpiar_teclado_os()
-
+ 
     while True:
         # Vacío las manos para las partidas nuevas posteriores a haber jugado al menos una vez.
         mano_banca = []
@@ -46,6 +42,9 @@ def iniciar_blackjack(saldo:int, apuesta:int)->int:
 
         # Validación de apuesta
         apuesta = validar_apuesta_min_max(apuesta, saldo)
+
+        # Resto la apuesta ya validada
+        saldo = saldo - apuesta
 
         print(f"Tu apuesta es de {apuesta}.")
         print("#----------------------------------------#\n")
@@ -73,7 +72,7 @@ def iniciar_blackjack(saldo:int, apuesta:int)->int:
                 mostrar_jugador_interfaz_BlackJack(mano_jugador)
                 mostrar_banca_interfaz_BlackJack(mano_banca, False)
                 if total_mano_jugador > 21: 
-                    continua_juego == False
+                    continua_juego = False
                     limpiar_teclado_os()
                     print("Me pasé de 21...")
                 else:
@@ -93,33 +92,21 @@ def iniciar_blackjack(saldo:int, apuesta:int)->int:
             mostrar_jugador_interfaz_BlackJack(mano_jugador)
             mostrar_banca_interfaz_BlackJack(mano_banca)
 
-            # Condicional en caso de victoria
-            if (((total_mano_jugador <= 21) and 
-                (total_mano_banca < total_mano_jugador) or
-                (total_mano_banca > 21)) or 
-                 ((total_mano_jugador > 21) and
-                 (total_mano_banca > 21))):
-                print("\n#----------------------------------------#")
-                print(f"Gana el Jugador. Ganaste {apuesta * 2}$.")
-                saldo = saldo + (apuesta * 2)
-                break
+            # Variable para definir el resultado de la partida
+            resultado = definir_resultados_blacjack(total_mano_jugador, total_mano_banca)
+            
+            if resultado == "victoria":
+                print(f"Gana el Jugador. Ganaste {apuesta}$.")
+                saldo = saldo + apuesta * 2
 
-            # Condicional en caso de derrota
-            elif (((total_mano_banca > total_mano_jugador) and 
-                  (total_mano_banca <= 21)) or
-                  ((total_mano_jugador > 21) and 
-                   (total_mano_banca <= 21))):
-                print("\n#----------------------------------------#")
+            elif resultado == "derrota":
                 print(f"Gana la Banca. Perdiste {apuesta}$.")
-                saldo = saldo - apuesta
-                break
 
-            # Condicional en caso de empate
-            elif total_mano_jugador == total_mano_banca:
-                print("\n#----------------------------------------#")
-                print("Empate.\nPush.")
-                saldo = saldo
-                break
+            else:
+                print("Empate. Push: se te devuelve la apuesta.")
+                saldo = saldo + apuesta
+
+            break
 
         # Condicional para cerrar el programa por si el saldo llega a 0
         if saldo == 0:
@@ -182,43 +169,100 @@ def definir_valores_mano(mano:list, total_mano:int = 0)->int:
 
     return total_mano
 
-# Función para repartir las primeras dos cartas a la banca
+# Función para repartir las cartas
 def repartir_cartas(mazo_cartas_completo:list, mano:list)->list:
     """
-    Función para repartir las cartas al jugador o a la banca, y rebaraja el mazo.
+    Función que reparte una carta al azar del mazo a la mano del jugador o de la banca.
+    Las cartas repartidas quedan marcadas con "X" para que no vuelvan a salir.
+    Si todas las cartas están usadas, vuelve a armar el mazo.
 
     Recibe dos parámetros:
         mazo_cartas_completo (list)     |     mano (list)
-    
-    Retorna la mano con las cartas aleatoriamente dadas del mazo de cartas completo.
+
+    Retorna la mano con la carta nueva agregada.
     """
+    if cuantificar_cartas_usadas(mazo_cartas_completo) == len(mazo_cartas_completo):
+        mazo_nuevo = crear_mazo_cartas()
+        posicion_indice = 0
+        while posicion_indice < len(mazo_cartas_completo):
+            mazo_cartas_completo[posicion_indice] = mazo_nuevo[posicion_indice]
+            posicion_indice += 1
 
-    carta = mazo_cartas_completo [random.randint(0, len(mazo_cartas_completo)- 1)]
+    indice = random.randint(0, len(mazo_cartas_completo) - 1)
+    while mazo_cartas_completo[indice] == "X":
+        indice = random.randint(0, len(mazo_cartas_completo) - 1)
 
-    mazo_cartas_completo = barajar_mazo_cartas(mazo_cartas_completo)
-
-    mazo_cartas_completo = mazo_cartas_completo - [carta]
+    carta = mazo_cartas_completo[indice]
+    marcar_carta_usada(mazo_cartas_completo, indice)
+    
     mano += [carta]
 
     return mano
 
-# Función que baraja de vuelta el mazo de cartas completo cuando no quedan mas cartas
-def barajar_mazo_cartas(mazo_cartas_completo:list)->list:
+# Función que determina los resultado de la partida de Black Jack
+def definir_resultados_blacjack(total_jugador: int, total_banca: int)->str:
     """
-    Función que rebaraja el mazo de cartas completo cuando se queda sin cartas.
+    Función que declara si en el resultado de la partida de Blackjack el jugador salió con una victoria, derrota o empate.
 
-    Recibe de parámetro:
-        mazo_cartas_completo (list)
+    Recibe como parámetros:
+        total_jugador (int)     |      total_banca (int)
 
-    Retorna el mazo de cartas completo rebarajado.
+    Retorna como mensaje el resultado de la partida para el jugador.
     """
+    if total_jugador > 21:     
+        resultado = "derrota"
+    elif total_banca > 21:          
+        resultado = "victoria"
+    elif total_jugador > total_banca:  
+        resultado = "victoria"
+    elif total_jugador < total_banca:
+        resultado = "derrota"
+    else:                       
+        resultado = "empate"
+    return resultado
+
+# Función que crea el mazo de cartas completo cuando no hay cartas
+def crear_mazo_cartas()->list:
+    """
+    Función que crea el mazo de cartas completo cuando no hay cartas.
+
+    Retorna el mazo de cartas completo.
+    """
+    mazo_cartas_completo = []
     mazo_cartas_figuras_comodin = ["J", "Q", "K", "A"] * 4
     mazo_cartas_numericos = [2, 3, 4, 5, 6, 7, 8, 9, 10] * 4
 
-    if len(mazo_cartas_completo) == 0:
-        mazo_cartas_completo = mazo_cartas_numericos + mazo_cartas_figuras_comodin
+    mazo_cartas_completo = mazo_cartas_figuras_comodin + mazo_cartas_numericos
 
     return mazo_cartas_completo
+
+# Función que remueve las cartas utilizadas
+# Función que marca (tacha) una carta usada
+def marcar_carta_usada(mazo_cartas_completo:list, indice:int)->None:
+    """
+    Función que tacha con "X" la carta que está en la posición indicada del mazo.
+
+    Recibe como parámetros:
+        mazo_cartas_completo (list)   |   indice (int)
+    """
+    mazo_cartas_completo[indice] = "X"
+
+# Función que marca las cartas que ya salieron 
+def cuantificar_cartas_usadas(mazo_cartas_completo:list)->int:
+    """
+    Función que se encarga de contar la cantidad de cartas usadas.
+
+    Recibe como parámetro:
+        mazo_cartas_completo (list)
+
+    Retorna la cantidad de cartas utilizadas.
+    """
+    contador_cartas_usadas = 0
+    for elemento in mazo_cartas_completo:
+        if elemento == "X":
+            contador_cartas_usadas += 1
+
+    return contador_cartas_usadas
 
 # Función para mostrar las cartas de la banca
 def mostrar_banca_interfaz_BlackJack(m_b:list, muestro_carta:bool = True)->None:
@@ -241,7 +285,7 @@ def mostrar_banca_interfaz_BlackJack(m_b:list, muestro_carta:bool = True)->None:
         contador += 2
     while contador < cantidad_cartas_mazo and muestro_carta == False:
         if contador + 1 < cantidad_cartas_mazo:
-            print(f"     {"?"}        {m_b[contador + 1]} ")
+            print(f"     ?        {m_b[contador + 1]} ")
         
         else:
             print(f"          {m_b[contador]}       ")
@@ -253,7 +297,8 @@ def mostrar_jugador_interfaz_BlackJack(m_j:list)->None:
     """
     Función que sirve para mostrar la interfaz de las rondas del jugador.
 
-    Los parámetros que utilizare serán: m_b (list) | m_j (list)
+    Recibo como parámetro: 
+        m_j (list)
     """
     cantidad_cartas_mazo = len(m_j)
     contador = 0     
@@ -268,16 +313,6 @@ def mostrar_jugador_interfaz_BlackJack(m_j:list)->None:
         contador += 2
     print("---------------------")
 
-# Función para marcar las cartas que ya salieron del mazo
-def marcar_carta_utilizada(mazo_cartas_completo:list)->None:
-    """
-    Función que tiene como objetivo el marcar las cartas utilizadas de la baraja completa.
-    
-    Recibe como parámetro:
-        mazo_cartas_completo (list)
-    """
-    contador = 0
-
 # Función para limpiar el teclado de la terminal:
 def limpiar_teclado_os()->None:
     """
@@ -289,4 +324,3 @@ def limpiar_teclado_os()->None:
         os.system("cls")
     else:
         os.system("clear")
-
